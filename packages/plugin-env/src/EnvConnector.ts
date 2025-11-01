@@ -9,7 +9,6 @@ import { maskingValue } from './utilts.js';
 export interface EnvConnectorConfig {
   /**
    * The prefix to use for environment variables.
-   * @default ``
    */
   prefix?: string;
 
