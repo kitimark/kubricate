@@ -24,8 +24,28 @@ describe('EnvConnector', () => {
     expect(connector.get('MY_SECRET')).toBe('value');
   });
 
+  it('loads secrets from process.env with prefix', async () => {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    process.env['CUSTOM_PREFIX_MY_SECRET'] = 'value';
+    const connector = new EnvConnector({ prefix: 'CUSTOM_PREFIX_' });
+    await connector.load(['MY_SECRET']);
+    expect(connector.get('MY_SECRET')).toBe('value');
+  });
+
+  it('throws on missing env var when configure with prefix but env has no prefix', async () => {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    process.env['MY_SECRET'] = 'value';
+    const connector = new EnvConnector({ prefix: 'CUSTOM_PREFIX_' });
+    await expect(connector.load(['MY_SECRET'])).rejects.toThrow('Missing environment variable');
+  });
+
   it('throws on missing env var', async () => {
     const connector = new EnvConnector();
+    await expect(connector.load(['MISSING_SECRET'])).rejects.toThrow('Missing environment variable');
+  });
+
+  it('throws on missing env var when configure with prefix', async () => {
+    const connector = new EnvConnector({ prefix: 'CUSTOM_PREFIX_' });
     await expect(connector.load(['MISSING_SECRET'])).rejects.toThrow('Missing environment variable');
   });
 
@@ -52,6 +72,13 @@ describe('EnvConnector', () => {
   it('loads from .env file if enabled', async () => {
     writeFileSync(envPath, 'DOTENV=fromenv\n');
     const connector = new EnvConnector({ allowDotEnv: true });
+    await connector.load(['DOTENV']);
+    expect(connector.get('DOTENV')).toBe('fromenv');
+  });
+
+  it('loads from .env file if enabled with prefix', async () => {
+    writeFileSync(envPath, 'CUSTOM_PREFIX_DOTENV=fromenv\n');
+    const connector = new EnvConnector({ allowDotEnv: true, prefix: 'CUSTOM_PREFIX_' });
     await connector.load(['DOTENV']);
     expect(connector.get('DOTENV')).toBe('fromenv');
   });
