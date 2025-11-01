@@ -20,7 +20,7 @@ export const secretManager = new SecretManager()
       namespace: config.namespace,
     })
   )
-  // Add basic auth credntials for API access
+  // Add basic auth credentials for API access
   .addSecret({
     name: 'API_CREDENTIALS',
     provider: 'ApiCredentialsProvider',
