@@ -18,7 +18,7 @@ describe('EnvConnector', () => {
 
   it('loads secrets from process.env', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_MY_SECRET'] = 'value';
+    process.env['MY_SECRET'] = 'value';
     const connector = new EnvConnector();
     await connector.load(['MY_SECRET']);
     expect(connector.get('MY_SECRET')).toBe('value');
@@ -31,14 +31,12 @@ describe('EnvConnector', () => {
 
   it('validates secret name format', async () => {
     const connector = new EnvConnector();
-    await expect(connector.load(['invalid-secret'])).rejects.toThrow(
-      'Missing environment variable: KUBRICATE_SECRET_invalid-secret'
-    );
+    await expect(connector.load(['invalid-secret'])).rejects.toThrow('Missing environment variable: invalid-secret');
   });
 
   it('supports case-insensitive loading', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_MY_SECRET'] = 'value';
+    process.env['MY_SECRET'] = 'value';
     const connector = new EnvConnector({ caseInsensitive: true });
     await connector.load(['my_secret']);
     expect(connector.get('my_secret')).toBe('value');
@@ -46,20 +44,20 @@ describe('EnvConnector', () => {
 
   it('throws if case-insensitive match not found', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_ACTUAL'] = 'value';
+    process.env['ACTUAL'] = 'value';
     const connector = new EnvConnector({ caseInsensitive: true });
     await expect(connector.load(['notfound'])).rejects.toThrow('Missing environment variable');
   });
 
   it('loads from .env file if enabled', async () => {
-    writeFileSync(envPath, 'KUBRICATE_SECRET_DOTENV=fromenv\n');
+    writeFileSync(envPath, 'DOTENV=fromenv\n');
     const connector = new EnvConnector({ allowDotEnv: true });
     await connector.load(['DOTENV']);
     expect(connector.get('DOTENV')).toBe('fromenv');
   });
 
   it('skips loading .env file if disabled', async () => {
-    writeFileSync(envPath, 'KUBRICATE_SECRET_SHOULD_NOT_LOAD=fail\n');
+    writeFileSync(envPath, 'SHOULD_NOT_LOAD=fail\n');
     const connector = new EnvConnector({ allowDotEnv: false });
     await expect(connector.load(['SHOULD_NOT_LOAD'])).rejects.toThrow('Missing environment variable');
   });
@@ -92,7 +90,7 @@ describe('EnvConnector', () => {
 
   it('parses valid flat object JSON from environment variable', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_JSON_OBJ'] = '{"key1":"value1","key2":"value2","key3":123}';
+    process.env['JSON_OBJ'] = '{"key1":"value1","key2":"value2","key3":123}';
     const connector = new EnvConnector();
     await connector.load(['JSON_OBJ']);
     expect(connector.get('JSON_OBJ')).toEqual({ key1: 'value1', key2: 'value2', key3: 123 });
@@ -100,7 +98,7 @@ describe('EnvConnector', () => {
 
   it('parses flat object with boolean and null values', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_COMPLEX'] = '{"enabled":true,"count":42,"name":"test","empty":null}';
+    process.env['COMPLEX'] = '{"enabled":true,"count":42,"name":"test","empty":null}';
     const connector = new EnvConnector();
     await connector.load(['COMPLEX']);
     expect(connector.get('COMPLEX')).toEqual({ enabled: true, count: 42, name: 'test', empty: null });
@@ -108,7 +106,7 @@ describe('EnvConnector', () => {
 
   it('keeps array as string fallback', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_ARRAY'] = '["item1","item2"]';
+    process.env['ARRAY'] = '["item1","item2"]';
     const connector = new EnvConnector();
     await connector.load(['ARRAY']);
     expect(connector.get('ARRAY')).toBe('["item1","item2"]');
@@ -116,7 +114,7 @@ describe('EnvConnector', () => {
 
   it('keeps nested object as string fallback', async () => {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env['KUBRICATE_SECRET_NESTED'] = '{"outer":{"inner":"value"}}';
+    process.env['NESTED'] = '{"outer":{"inner":"value"}}';
     const connector = new EnvConnector();
     await connector.load(['NESTED']);
     expect(connector.get('NESTED')).toBe('{"outer":{"inner":"value"}}');

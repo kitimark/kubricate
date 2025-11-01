@@ -43,10 +43,10 @@ Edit `.env` to set your TLS certificates:
 
 ```bash
 # Ingress TLS Certificate
-KUBRICATE_SECRET_INGRESS_TLS={"cert":"-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----","key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"}
+INGRESS_TLS={"cert":"-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----","key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"}
 
 # API TLS Certificate
-KUBRICATE_SECRET_API_TLS={"cert":"-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----","key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"}
+API_TLS={"cert":"-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----","key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"}
 ```
 
 ### 2. Generate Kubernetes Manifests

@@ -35,7 +35,7 @@ cp .env.example .env
 Edit `.env` and add your SSH private key and known_hosts:
 
 ```env
-KUBRICATE_SECRET_GIT_SSH_KEY={"ssh-privatekey":"-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----","known_hosts":"github.com ssh-rsa AAAAB3NzaC1..."}
+GIT_SSH_KEY={"ssh-privatekey":"-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----","known_hosts":"github.com ssh-rsa AAAAB3NzaC1..."}
 ```
 
 **Important**:
