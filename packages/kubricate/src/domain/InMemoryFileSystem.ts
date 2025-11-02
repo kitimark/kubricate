@@ -197,6 +197,9 @@ export class InMemoryFileSystem implements IFileSystem {
 
     // Check if parent directory exists
     const parent = this.getParentDir(normalized);
+    if (this.files.has(parent)) {
+      throw new Error(`ENOTDIR: not a directory, open '${p}'`);
+    }
     if (!this.directories.has(parent)) {
       throw new Error(`ENOENT: no such file or directory, open '${p}'`);
     }

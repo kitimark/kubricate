@@ -157,6 +157,34 @@ describe('InMemoryFileSystem', () => {
       fs.writeFile('/test/empty.txt', '');
       expect(fs.readFile('/test/empty.txt')).toBe('');
     });
+
+    describe('parent path validation', () => {
+      it('should throw ENOTDIR when parent is a file', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent', { recursive: true });
+        fs.writeFile('/parent/file.txt', 'content');
+
+        // Try to write a file under a file path
+        expect(() => fs.writeFile('/parent/file.txt/nested.txt', 'content')).toThrow('ENOTDIR');
+        expect(() => fs.writeFile('/parent/file.txt/nested.txt', 'content')).toThrow(/not a directory/i);
+      });
+
+      it('should throw ENOENT when parent does not exist', () => {
+        const fs = new InMemoryFileSystem();
+
+        // Parent directory doesn't exist
+        expect(() => fs.writeFile('/nonexistent/file.txt', 'content')).toThrow('ENOENT');
+        expect(() => fs.writeFile('/nonexistent/file.txt', 'content')).toThrow(/no such file or directory/i);
+      });
+
+      it('should succeed when parent is a valid directory', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent/dir', { recursive: true });
+
+        expect(() => fs.writeFile('/parent/dir/file.txt', 'content')).not.toThrow();
+        expect(fs.readFile('/parent/dir/file.txt')).toBe('content');
+      });
+    });
   });
 
   describe('readFile', () => {
