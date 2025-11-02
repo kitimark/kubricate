@@ -172,8 +172,17 @@ export class InMemoryFileSystem implements IFileSystem {
     // Create parent directories if recursive
     if (options?.recursive) {
       const parents = this.getAllParentDirs(normalized);
+
+      // First, verify no ancestor is a file
       for (const parentDir of parents) {
-        if (!this.directories.has(parentDir) && !this.files.has(parentDir)) {
+        if (this.files.has(parentDir)) {
+          throw new Error(`ENOTDIR: not a directory, mkdir '${p}'`);
+        }
+      }
+
+      // After verification, create missing parent directories
+      for (const parentDir of parents) {
+        if (!this.directories.has(parentDir)) {
           this.directories.add(parentDir);
         }
       }

@@ -69,6 +69,59 @@ describe('InMemoryFileSystem', () => {
       fs.writeFile('/test/file.txt', 'content');
       expect(() => fs.mkdir('/test/file.txt')).toThrow('EEXIST');
     });
+
+    describe('ancestor validation', () => {
+      it('should throw ENOTDIR when ancestor is a file with recursive option', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent', { recursive: true });
+        fs.writeFile('/parent/file.txt', 'content');
+
+        // Try to create a directory under a file path
+        expect(() => fs.mkdir('/parent/file.txt/subdir', { recursive: true })).toThrow('ENOTDIR');
+        expect(() => fs.mkdir('/parent/file.txt/subdir', { recursive: true })).toThrow(/not a directory/i);
+      });
+
+      it('should throw ENOTDIR when intermediate ancestor is a file', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent', { recursive: true });
+        fs.writeFile('/parent/file.txt', 'content');
+
+        // Try to create a deeply nested directory where an ancestor is a file
+        expect(() => fs.mkdir('/parent/file.txt/a/b/c', { recursive: true })).toThrow('ENOTDIR');
+      });
+
+      it('should not create any directories if ancestor validation fails', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent', { recursive: true });
+        fs.writeFile('/parent/file.txt', 'content');
+
+        // Attempt to create directory under file
+        try {
+          fs.mkdir('/parent/file.txt/subdir/deep', { recursive: true });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          // Expected error
+        }
+
+        // Verify no new directories were created
+        expect(fs.exists('/parent/file.txt/subdir')).toBe(false);
+        expect(fs.exists('/parent/file.txt/subdir/deep')).toBe(false);
+
+        // Original structure should be intact
+        expect(fs.exists('/parent')).toBe(true);
+        expect(fs.exists('/parent/file.txt')).toBe(true);
+      });
+
+      it('should succeed if all ancestors are directories', () => {
+        const fs = new InMemoryFileSystem();
+        fs.mkdir('/parent/dir', { recursive: true });
+        fs.writeFile('/parent/dir/file.txt', 'content');
+
+        // This should succeed because all ancestors (/parent, /parent/dir) are directories
+        expect(() => fs.mkdir('/parent/dir/subdir', { recursive: true })).not.toThrow();
+        expect(fs.exists('/parent/dir/subdir')).toBe(true);
+      });
+    });
   });
 
   describe('writeFile', () => {
